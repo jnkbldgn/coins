@@ -8,10 +8,23 @@
 </head>
 <body>
   <fieldset>
-    <legend>OKX</legend>
-    <button class="okx-spot" type="button">SPOT</button>
-    <button class="okx-futures" type="button">FUTURES</button>
-    <section class="okx-source"></section>
+    <legend class="title">OKX</legend>
+    <form class="form" action="#" method="post">
+      <section class="exchange">
+        <header>Exchange:</header>
+        <label class="exchange-item" for="exchange-okx">
+          <input type="radio" name="exchange" id="exchange-okx" value="OKX" checked>
+          <span class="exchange-item-text">okx</span>
+        </label>
+        <label class="exchange-item" for="exchange-bybit">
+          <input type="radio" name="exchange" id="exchange-bybit" value="BYBIT">
+          <span class="exchange-item-text">bybit</span>
+        </label>
+      </section>
+      <button class="spot" value="SPOT" type="submit">SPOT</button>
+      <button class="futures" value="FUTURES" type="submit">FUTURES</button>
+    </form>
+    <section class="source"></section>
   </fieldset>
 
   <script type="module" src="./src/js/index.js"></script>

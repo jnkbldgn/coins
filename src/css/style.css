@@ -1,4 +1,20 @@
-.okx-source {
+.exchange {
+  padding-block: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.exchange-item:hover {
+  cursor: pointer;
+}
+
+.exchange-item-text {
+  text-transform: uppercase;
+}
+
+.source {
   margin-top: 20px;
   padding: 10px;
   min-height: 100px;

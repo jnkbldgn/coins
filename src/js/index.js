@@ -1,50 +1,64 @@
 import { fetchInstrument } from './exchange/okx/api.js';
+import { fetchInstrumentsInfo } from './exchange/bybit/api.js';
 import { mapOkxCoinSpotToTradingview, mapOkxCoinSwapToTradingview } from './exchange/okx/utils/mappers.js';
+import { mapBybitCoinSpotToTradingview, mapBybitCoinSwapToTradingview } from './exchange/bybit/utils/mappers.js';
 import { downloadFile } from './utils/files.js';
 
-const okxSpotBtn = document.querySelector('.okx-spot');
-const okxFuturesBtn = document.querySelector('.okx-futures');
-const okxSource = document.querySelector('.okx-source');
-
-const okxLoadSpotSource = async (elem) => {
-  const response = await fetchInstrument('SPOT');
-
-  const data = mapOkxCoinSpotToTradingview(response.data, 'USDT');
-
-  elem.innerHTML = data;
+const actions = {
+  OKX: {
+    SPOT: {
+      fetchInstrument: () => fetchInstrument('SPOT'),
+      mapper: (data) => mapOkxCoinSpotToTradingview(data, 'USDT')
+    },
+    FUTURES: {
+      fetchInstrument: () => fetchInstrument('SWAP'),
+      mapper: (data) => mapOkxCoinSwapToTradingview(data, 'USDT')
+    },
+  },
+  BYBIT: {
+    SPOT: {
+      fetchInstrument: () => fetchInstrumentsInfo('spot'),
+      mapper: (data) => mapBybitCoinSpotToTradingview(data, 'USDT')
+    },
+    FUTURES: {
+      fetchInstrument: () => fetchInstrumentsInfo('linear'),
+      mapper: (data) => mapBybitCoinSwapToTradingview(data, 'USDT')
+    },
+  }
 }
 
-const okxLoadSwapSource = async (elem) => {
-  const response = await fetchInstrument('SWAP');
+const form = document.querySelector('.form');
+const source = document.querySelector('.source');
+const title = document.querySelector('.title');
+const exchangeBtns = document.querySelectorAll('input[type="radio"][name="exchange"]');
 
-  const data = mapOkxCoinSwapToTradingview(response.data, 'USDT');
-
-  elem.innerHTML = data;
-}
-
-
-okxSpotBtn.addEventListener('click', async function() {
-  this.toggleAttribute('disabled');
-
-  try {
-    await okxLoadSpotSource(okxSource)
-
-    okxFuturesBtn.removeAttribute('disabled');
-  } catch {
-    this.toggleAttribute('disabled');
+Array.prototype.forEach.call(exchangeBtns, (el) => {
+  if(el.checked) {
+    title.innerHTML = el.value;
   }
 
-});
+  el.addEventListener('change', function() {
+    source.innerHTML = '';
 
-okxFuturesBtn.addEventListener('click', async function() {
-  this.toggleAttribute('disabled');
+    if(this.checked) {
+      title.innerHTML = this.value;
+    }
+  })
+})
 
-  try {
-    await okxLoadSwapSource(okxSource);
+form.addEventListener('submit', async function(event) {
+  event.preventDefault();
 
-    okxSpotBtn.removeAttribute('disabled');
-  } catch {
-    this.toggleAttribute('disabled');
+  const exchange = event.target.elements.exchange.value;
+  const type = event.submitter.value;
+
+  if (!exchange || !type) {
+    return false;
   }
 
+  const action = actions[exchange][type];
+  const response = await action.fetchInstrument();
+  source.innerHTML = action.mapper(response);
+
+  return false
 });
